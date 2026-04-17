@@ -90,6 +90,10 @@ function setupChatNamespace(io) {
       }
     })
 
+    socket.on('file:tree-changed', () => {
+      socket.to(room).emit('file:tree-changed')
+    })
+
     // Handle disconnect
     socket.on('disconnect', () => {
       console.log(`💬 ${user.username} left chat for project ${projectId}`)
