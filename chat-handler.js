@@ -71,6 +71,25 @@ function setupChatNamespace(io) {
       }
     })
 
+    // ─── File Sync Relays (Host-Guest) ───
+    socket.on('file:sync-request', (data) => {
+      // Guest asks for the file tree
+      // Broadcast this to the room so the Host can hear it
+      chatNamespace.to(room).emit('file:sync-request', {
+        ...data,
+        requestingSocketId: socket.id,
+        username: user.username
+      })
+    })
+
+    socket.on('file:sync-response', (data) => {
+      // Host responds with the packaged directory
+      // Send it directly to the guest who requested it
+      if (data.requestingSocketId) {
+        chatNamespace.to(data.requestingSocketId).emit('file:sync-response', data)
+      }
+    })
+
     // Handle disconnect
     socket.on('disconnect', () => {
       console.log(`💬 ${user.username} left chat for project ${projectId}`)
